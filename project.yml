@@ -1,6 +1,7 @@
 name: NotchShelf
 options:
   bundleIdPrefix: com.notchshelf
+  xcodeVersion: "15.4"
   deploymentTarget:
     macOS: "14.0"
   createIntermediateGroups: true
