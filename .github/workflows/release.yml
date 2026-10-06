@@ -1,0 +1,41 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Build & Publish Release
+    runs-on: macos-14
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Build Release App
+        run: |
+          xcodebuild -project NotchShelf.xcodeproj -scheme NotchShelf \
+            -configuration Release \
+            -destination "platform=macOS" \
+            -derivedDataPath build/dist \
+            CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
+            build
+
+      - name: Package DMG
+        run: |
+          ./scripts/create-dmg.sh build/dist/Build/Products/Release/NotchShelf.app build/artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/artifacts/*.dmg
+          generate_release_notes: true

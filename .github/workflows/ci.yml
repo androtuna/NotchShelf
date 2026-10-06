@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-and-build:
+    name: Test & Build
+    runs-on: macos-14
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode Project
+        run: xcodegen generate
+
+      - name: Run Unit Tests
+        run: |
+          xcodebuild -project NotchShelf.xcodeproj -scheme NotchShelf \
+            -destination "platform=macOS" \
+            -derivedDataPath build/DerivedData \
+            test
+
+      - name: Build Release App
+        run: |
+          xcodebuild -project NotchShelf.xcodeproj -scheme NotchShelf \
+            -configuration Release \
+            -destination "platform=macOS" \
+            -derivedDataPath build/dist \
+            CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
+            build
+
+      - name: Package DMG
+        run: |
+          ./scripts/create-dmg.sh build/dist/Build/Products/Release/NotchShelf.app build/artifacts
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NotchShelf-CI-Artifacts
+          path: |
+            build/artifacts/*.dmg

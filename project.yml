@@ -1,0 +1,96 @@
+name: NotchShelf
+options:
+  bundleIdPrefix: com.notchshelf
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  developmentLanguage: tr
+  knownRegions:
+    - Base
+    - tr
+    - en
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    GENERATE_INFOPLIST_FILE: NO
+
+targets:
+  NotchShelf:
+    type: application
+    platform: macOS
+    bundleId: com.notchshelf.app
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.notchshelf.app
+      configs:
+        # Debug: testler ve hata ayıklayıcı get-task-allow ister.
+        # Release: notarization bu anahtarın YOK olmasını şart koşar; Xcode'un
+        # taban entitlement enjeksiyonunu da kapatıyoruz.
+        Debug:
+          CODE_SIGN_ENTITLEMENTS: Signing/Debug.entitlements
+        Release:
+          CODE_SIGN_ENTITLEMENTS: Signing/Release.entitlements
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Developer ID Application"
+          CODE_SIGN_INJECT_BASE_ENTITLEMENTS: NO
+          # Xcode Developer ID imzasına kendiliğinden secure timestamp eklemiyor;
+          # olmadan Apple submission "signature does not include a secure
+          # timestamp" ile Invalid dönüyor.
+          OTHER_CODE_SIGN_FLAGS: "--timestamp"
+    sources:
+      - path: NotchShelf
+    info:
+      path: Generated/Info.plist
+      properties:
+        CFBundleName: NotchShelf
+        CFBundleDisplayName: NotchShelf
+        CFBundleIdentifier: com.notchshelf.app
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundlePackageType: APPL
+        CFBundleDevelopmentRegion: tr
+        CFBundleLocalizations:
+          - tr
+          - en
+        CFBundleIconName: AppIcon
+        CFBundleIconFile: AppIcon
+        LSApplicationCategoryType: public.app-category.entertainment
+        LSUIElement: true
+        NSHumanReadableCopyright: "© 2026 NotchShelf. Tüm hakları saklıdır."
+        NSSupportsAutomaticTermination: false
+        NSSupportsSuddenTermination: false
+
+  # Uygulama kaynaklarını kendi modülünde derler; host app enjeksiyonu
+  # (sandbox + imza) yerine saf mantık testleri çalıştırır.
+  NotchShelfTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests
+      - path: NotchShelf
+        excludes:
+          - "App/**"
+          - "Resources/**"
+    dependencies:
+      - target: NotchShelf
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.notchshelf.app.tests
+
+schemes:
+  NotchShelf:
+    build:
+      targets:
+        NotchShelf: all
+        NotchShelfTests: [test]
+    test:
+      targets:
+        - NotchShelfTests
+      parallelizable: false
+      gatherCoverageData: false
