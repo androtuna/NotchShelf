@@ -23,10 +23,10 @@ targets:
   NotchShelf:
     type: application
     platform: macOS
-    bundleId: com.notchshelf.app
+    bundleId: com.notchshelf.macos
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.notchshelf.app
+        PRODUCT_BUNDLE_IDENTIFIER: com.notchshelf.macos
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
       configs:
         # Debug: testler ve hata ayıklayıcı get-task-allow ister.
@@ -50,7 +50,7 @@ targets:
       properties:
         CFBundleName: NotchShelf
         CFBundleDisplayName: NotchShelf
-        CFBundleIdentifier: com.notchshelf.app
+        CFBundleIdentifier: com.notchshelf.macos
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundlePackageType: APPL
