@@ -24,6 +24,8 @@ build: project
 		-derivedDataPath $(DERIVED) -destination "platform=macOS" \
 		CODE_SIGN_IDENTITY="-" CODE_SIGN_STYLE=Manual \
 		clean build
+	@cp NotchShelf/Resources/AppIcon.icns $(DERIVED)/Build/Products/$(CONFIGURATION)/$(SCHEME).app/Contents/Resources/AppIcon.icns
+	@codesign --force --sign - --timestamp -o runtime --entitlements Signing/$(CONFIGURATION).entitlements $(DERIVED)/Build/Products/$(CONFIGURATION)/$(SCHEME).app
 
 # Package app into a distributable DMG image
 dmg: build
